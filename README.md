@@ -1,4 +1,4 @@
-# 🎮 Gaming Hub
+# 🎮 Gaming Hub (In Progress)
 
 > A multi-game desktop application built in Java — your one-stop platform for classic and logic-based games.
 
