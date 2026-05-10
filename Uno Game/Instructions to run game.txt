@@ -1,0 +1,10 @@
+After Opening the game in IDE launch a new Terminal and write following:
+
+javac Uno/*.java
+
+then press Enter and again write:
+
+java Uno.Main
+
+
+and then enjoy the game :)
