@@ -11,11 +11,16 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.Point;
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.net.URL;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class GamePanel extends JPanel {
+
+    private static final List<Clip> ACTIVE_CLIPS = new CopyOnWriteArrayList<>();
 
     private final GameController controller;
 
@@ -231,14 +236,19 @@ public class GamePanel extends JPanel {
     // NEW: simple WAV player
     private void playSound(String path) {
         try {
-            System.out.println(new File(MOVE_SOUND).getAbsolutePath());
-            System.out.println(new File(MOVE_SOUND).exists());
-            File soundFile = new File(path);
-            if (!soundFile.exists()) return;
+            URL soundUrl = resolveSound(path);
+            if (soundUrl == null) return;
 
-            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(soundFile);
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new BufferedInputStream(soundUrl.openStream()));
             Clip clip = AudioSystem.getClip();
             clip.open(audioInputStream);
+            clip.addLineListener(event -> {
+                if (event.getType() == LineEvent.Type.STOP) {
+                    clip.close();
+                    ACTIVE_CLIPS.remove(clip);
+                }
+            });
+            ACTIVE_CLIPS.add(clip);
             clip.start();
         } catch (Exception ignored) {
             // keep game running even if sound fails
@@ -248,4 +258,23 @@ public class GamePanel extends JPanel {
     public void playWinSoundNow() {
         playSound(WIN_SOUND);
     }
+
+    private URL resolveSound(String path) {
+        URL soundUrl = getClass().getResource("/" + path);
+        if (soundUrl != null) {
+            return soundUrl;
+        }
+
+        File soundFile = new File("Maze Game", path);
+        if (!soundFile.exists()) {
+            return null;
+        }
+
+        try {
+            return soundFile.toURI().toURL();
+        } catch (Exception exception) {
+            return null;
+        }
+    }
+
 }

@@ -82,7 +82,7 @@ public class TicTacToe extends JFrame {
     // ══════════════════════════════════════════════
     public TicTacToe() {
         setTitle("Tic Tac Toe");
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setResizable(false);
 
         JPanel root = new JPanel(new BorderLayout(0, 0));

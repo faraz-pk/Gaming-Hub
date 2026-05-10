@@ -27,17 +27,7 @@ public class GameStage extends javax.swing.JFrame {
 
     // IMAGE LOADER (SMALL CARDS)
     private ImageIcon loadSmallCard(String name) {
-
-        String path = "/Cards/Small/" + name + ".png";
-
-        java.net.URL url = getClass().getResource(path);
-
-        if (url == null) {
-            System.out.println("Image NOT FOUND: " + path);
-            return new ImageIcon();
-        }
-
-        return new ImageIcon(url);
+        return ImageLoader.load("/Cards/Small/" + name + ".png");
     }
 
     public GameStage() {}
@@ -140,8 +130,8 @@ public class GameStage extends javax.swing.JFrame {
         drawCardButton.setText("Draw Card");
 
         // Deck image
-        java.net.URL downUrl = getClass().getResource("/Cards/Small/Downward.png");
-        if (downUrl != null) downCard.setIcon(new javax.swing.ImageIcon(downUrl));
+        ImageIcon deckIcon = ImageLoader.load("/Cards/Small/Downward.png");
+        if (deckIcon.getIconWidth() > 0) downCard.setIcon(deckIcon);
         else downCard.setText("Deck");
 
         topCardButton.setText("");
@@ -171,7 +161,7 @@ public class GameStage extends javax.swing.JFrame {
         jPanel1.add(handPanel,    java.awt.BorderLayout.SOUTH);
 
         // Frame setup
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("UNO");
         getContentPane().add(jPanel1);
         pack();

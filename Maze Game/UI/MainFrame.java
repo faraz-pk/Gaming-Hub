@@ -24,7 +24,7 @@ public class MainFrame extends JFrame {
         this.controller = controller;
 
         setTitle("Maze Game");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setSize(900, 700);
         setLocationRelativeTo(null);
         setResizable(false);

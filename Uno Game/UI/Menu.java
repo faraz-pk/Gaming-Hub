@@ -4,7 +4,7 @@ public class Menu extends javax.swing.JFrame {
 
     public Menu() {
         initComponents();
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         pack();
         setLocationRelativeTo(null);
     }
@@ -69,7 +69,7 @@ public class Menu extends javax.swing.JFrame {
     }// </editor-fold>
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {
-        System.exit(0);
+        dispose();
     }
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {

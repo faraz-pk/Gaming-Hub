@@ -1,7 +1,6 @@
 package UI;
 
 import java.awt.Font;
-import java.util.Objects;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import Logic.UnoCard;
@@ -124,7 +123,7 @@ public class PickColorFrame extends javax.swing.JDialog {
         allow = true;
         this.dispose();
         popUp.declaredColor = UnoCard.Color.Red;
-        popUp.topCardButton.setIcon(new javax.swing.ImageIcon(Objects.requireNonNull(getClass().getResource("/Cards/Small/" + popUp.game.getTopCardImage()))));
+        popUp.topCardButton.setIcon(ImageLoader.load("/Cards/Small/" + popUp.game.getTopCardName() + ".png"));
     }
 
     private void blueButtonActionPerformed(java.awt.event.ActionEvent evt) {
@@ -135,7 +134,7 @@ public class PickColorFrame extends javax.swing.JDialog {
         allow = true;
         this.dispose();
         popUp.declaredColor = UnoCard.Color.Blue;
-        popUp.topCardButton.setIcon(new javax.swing.ImageIcon(Objects.requireNonNull(getClass().getResource("/Cards/Small/" + popUp.game.getTopCardImage()))));
+        popUp.topCardButton.setIcon(ImageLoader.load("/Cards/Small/" + popUp.game.getTopCardName() + ".png"));
     }
 
     private void greenButtonActionPerformed(java.awt.event.ActionEvent evt) {
@@ -146,7 +145,7 @@ public class PickColorFrame extends javax.swing.JDialog {
         allow = true;
         this.dispose();
         popUp.declaredColor = UnoCard.Color.Green;
-        popUp.topCardButton.setIcon(new javax.swing.ImageIcon(Objects.requireNonNull(getClass().getResource("/Cards/Small/" + popUp.game.getTopCardImage()))));
+        popUp.topCardButton.setIcon(ImageLoader.load("/Cards/Small/" + popUp.game.getTopCardName() + ".png"));
     }
 
     private void yellowButtonActionPerformed(java.awt.event.ActionEvent evt) {
@@ -157,7 +156,7 @@ public class PickColorFrame extends javax.swing.JDialog {
         allow = true;
         this.dispose();
         popUp.declaredColor = UnoCard.Color.Yellow;
-        popUp.topCardButton.setIcon(new javax.swing.ImageIcon(Objects.requireNonNull(getClass().getResource("/Cards/Small/" + popUp.game.getTopCardImage()))));
+        popUp.topCardButton.setIcon(ImageLoader.load("/Cards/Small/" + popUp.game.getTopCardName() + ".png"));
     }
 
     public static void main(String args[]) {

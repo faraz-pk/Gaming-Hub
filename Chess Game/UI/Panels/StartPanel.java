@@ -27,9 +27,12 @@ public class StartPanel extends JPanel {
                 frame.switchState(GameState.MODE_SELECT)
         );
 
-        exitBtn.addActionListener(e ->
-                System.exit(0)
-        );
+        exitBtn.addActionListener(e -> {
+            Window window = SwingUtilities.getWindowAncestor(this);
+            if (window != null) {
+                window.dispose();
+            }
+        });
 
         gbc.gridy = 0;
         add(title, gbc);

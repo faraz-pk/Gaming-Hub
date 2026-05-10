@@ -10,8 +10,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
-import java.util.Objects;
+import java.net.URL;
 import java.util.Random;
 import javax.imageio.ImageIO;
 import javax.sound.sampled.AudioInputStream;
@@ -44,7 +45,10 @@ public final class GamePanel extends JPanel implements ActionListener {
         this.setPreferredSize(new Dimension(600, 600));
 
         try {
-            this.backgroundimage = ImageIO.read(Objects.requireNonNull(this.getClass().getResource("/assets/bg.png")));
+            URL imageUrl = this.resolveResource("/assets/bg.png", "Snake Game/assets/bg.png");
+            if (imageUrl != null) {
+                this.backgroundimage = ImageIO.read(imageUrl);
+            }
         } catch (IOException var2) {
             var2.printStackTrace();
         }
@@ -56,7 +60,11 @@ public final class GamePanel extends JPanel implements ActionListener {
 
     public void playMusic(String var1) {
         try {
-            AudioInputStream var2 = AudioSystem.getAudioInputStream(Objects.requireNonNull(this.getClass().getResource(var1)));
+            URL soundUrl = this.resolveResource(var1, "Snake Game/" + this.stripLeadingSlash(var1));
+            if (soundUrl == null) {
+                return;
+            }
+            AudioInputStream var2 = AudioSystem.getAudioInputStream(soundUrl);
             this.backgroundmusic = AudioSystem.getClip();
             this.backgroundmusic.open(var2);
             this.backgroundmusic.loop(Clip.LOOP_CONTINUOUSLY);
@@ -69,7 +77,11 @@ public final class GamePanel extends JPanel implements ActionListener {
 
     public void biteSound(String var1) {
         try {
-            AudioInputStream var2 = AudioSystem.getAudioInputStream(Objects.requireNonNull(this.getClass().getResource(var1)));
+            URL soundUrl = this.resolveResource(var1, "Snake Game/" + this.stripLeadingSlash(var1));
+            if (soundUrl == null) {
+                return;
+            }
+            AudioInputStream var2 = AudioSystem.getAudioInputStream(soundUrl);
             this.bite = AudioSystem.getClip();
             this.bite.open(var2);
             this.bite.start();
@@ -81,7 +93,11 @@ public final class GamePanel extends JPanel implements ActionListener {
 
     public void gameOverSound(String var1) {
         try {
-            AudioInputStream var2 = AudioSystem.getAudioInputStream(Objects.requireNonNull(this.getClass().getResource(var1)));
+            URL soundUrl = this.resolveResource(var1, "Snake Game/" + this.stripLeadingSlash(var1));
+            if (soundUrl == null) {
+                return;
+            }
+            AudioInputStream var2 = AudioSystem.getAudioInputStream(soundUrl);
             this.gameOver = AudioSystem.getClip();
             this.gameOver.open(var2);
             this.gameOver.start();
@@ -256,7 +272,9 @@ public final class GamePanel extends JPanel implements ActionListener {
         FontMetrics var6 = this.getFontMetrics(var1.getFont());
         var1.drawString("Game Over", (600 - var6.stringWidth("Game Over")) / 2, 300);
         if (!this.gameOverPlayed) {
-            this.backgroundmusic.stop();
+            if (this.backgroundmusic != null) {
+                this.backgroundmusic.stop();
+            }
             this.gameOverSound("/assets/gameOver.wav");
             this.gameOverPlayed = true;
         }
@@ -271,6 +289,28 @@ public final class GamePanel extends JPanel implements ActionListener {
         }
 
         this.repaint();
+    }
+
+    private URL resolveResource(String classpathPath, String filePath) {
+        URL resource = this.getClass().getResource(classpathPath);
+        if (resource != null) {
+            return resource;
+        }
+
+        File file = new File(filePath);
+        if (!file.exists()) {
+            return null;
+        }
+
+        try {
+            return file.toURI().toURL();
+        } catch (Exception exception) {
+            return null;
+        }
+    }
+
+    private String stripLeadingSlash(String path) {
+        return path.startsWith("/") ? path.substring(1) : path;
     }
 
     public class MyKeyAdapter extends KeyAdapter {
@@ -318,14 +358,14 @@ public final class GamePanel extends JPanel implements ActionListener {
                     GamePanel.this.startGame();
                     break;
                 case 80:
-                    if (running && !paused) {
+                    if (running && !paused && backgroundmusic != null) {
                         paused = true;
                         timer.stop();
                         backgroundmusic.stop();
                     }
                     break;
                 case 82:
-                    if (running && paused) {
+                    if (running && paused && backgroundmusic != null) {
                         paused = false;
                         timer.start();
                         backgroundmusic.start();

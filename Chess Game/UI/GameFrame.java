@@ -2,7 +2,8 @@ package UI;
 
 import Game.GameMode;
 import Game.GameState;
-import UI.Panels.*;
+import UI.Panels.ModeSelectPanel;
+import UI.Panels.StartPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,14 +15,14 @@ public class GameFrame extends JFrame {
 
     private StartPanel startPanel;
     private ModeSelectPanel modePanel;
-    private GamePanel gamePanel;
+    private UI.Panels.GamePanel gamePanel;
 
     private GameMode selectedMode;
 
     public GameFrame() {
         setTitle("Chess Game");
         setSize(800, 800);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
         layout = new CardLayout();
@@ -30,7 +31,7 @@ public class GameFrame extends JFrame {
         // Initialize panels
         startPanel = new StartPanel(this);
         modePanel = new ModeSelectPanel(this);
-        gamePanel = new GamePanel(this);
+        gamePanel = new UI.Panels.GamePanel(this);
 
         container.add(startPanel, "START");
         container.add(modePanel, "MODE");

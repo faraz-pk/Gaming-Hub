@@ -48,7 +48,7 @@ public class SudokuFrame extends JFrame {
 
     public SudokuFrame() {
         setTitle("Sudoku — Gaming Hub");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setResizable(false);
 
         buildUI();

@@ -47,27 +47,11 @@ public class PopUp extends javax.swing.JFrame {
 
     // IMAGE LOADER
     private ImageIcon loadLargeCard(String name) {
-
-        String path = "/Cards/Large/" + name + ".jpg";
-
-        java.net.URL url = getClass().getResource(path);
-
-        if (url == null) {
-            System.out.println("Image NOT FOUND: " + path);
-            return new ImageIcon();
-        }
-
-        return new ImageIcon(url);
+        return ImageLoader.load("/Cards/Large/" + name + ".jpg");
     }
 
     private ImageIcon loadSmallCard(String name) {
-        String path = "/Cards/Small/" + name + ".png";
-        java.net.URL url = getClass().getResource(path);
-        if (url == null) {
-            System.out.println("Image NOT FOUND: " + path);
-            return new ImageIcon();
-        }
-        return new ImageIcon(url);
+        return ImageLoader.load("/Cards/Small/" + name + ".png");
     }
 
     private void initComponents() {

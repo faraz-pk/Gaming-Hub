@@ -3,9 +3,9 @@ package Pieces;
 import Model.Board;
 import Model.Move;
 import Model.Tile;
+import Util.ImageLoader;
 
 import javax.swing.*;
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,10 +20,7 @@ public class Pawn extends Piece {
         String path = isWhite ?
                 "/Assets/Pieces/white_pawn.png" :
                 "/Assets/Pieces/black_pawn.png";
-
-        ImageIcon original = new ImageIcon(getClass().getResource(path));
-        Image img = original.getImage().getScaledInstance(60, 60, Image.SCALE_SMOOTH);
-        return new ImageIcon(img);
+        return ImageLoader.loadScaled(path, 60, 60);
     }
 
     @Override
