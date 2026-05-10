@@ -1,0 +1,17 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "▶ Run UNO Game",
+            "request": "launch",
+            "mainClass": "Uno.Main",
+            "classPaths": [
+                "${workspaceFolder}/Uno Game",
+                "${workspaceFolder}/Uno Game/src"
+            ],
+            "preLaunchTask": "Compile UNO",
+            "cwd": "${workspaceFolder}/Uno Game"
+        }
+    ]
+}

@@ -7,4 +7,8 @@ then press Enter and again write:
 java Uno.Main
 
 
+javac Uno/*.java
+java -cp ".;src" Uno.Main
+
+
 and then enjoy the game :)
