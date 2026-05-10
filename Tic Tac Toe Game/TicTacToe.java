@@ -6,16 +6,16 @@ import java.util.List;
 
 /**
  * TicTacToe.java  — 2-Player with Difficulty Levels
- *
+ * <p>
  * EASY   → 3×3 grid, need 3 in a row to win
  * MEDIUM → 5×5 grid, need 4 in a row to win
  * HARD   → 7×7 grid, need 5 in a row to win
- *
+ * <p>
  * OOP Concepts:
- *   - Encapsulation  : game state is private, changed via methods only
- *   - Inheritance    : CellButton extends JPanel
- *   - Inner class    : CellButton lives inside TicTacToe
- *   - Enum           : Difficulty carries grid size + win length + label
+ * - Encapsulation  : game state is private, changed via methods only
+ * - Inheritance    : CellButton extends JPanel
+ * - Inner class    : CellButton lives inside TicTacToe
+ * - Enum           : Difficulty carries grid size + win length + label
  */
 public class TicTacToe extends JFrame {
 
@@ -23,44 +23,47 @@ public class TicTacToe extends JFrame {
     // Difficulty Enum
     // ══════════════════════════════════════════════
     enum Difficulty {
-        EASY  ("Easy   — 3×3, 3 in a row", 3, 3),
+        EASY("Easy   — 3×3, 3 in a row", 3, 3),
         MEDIUM("Medium — 5×5, 4 in a row", 5, 4),
-        HARD  ("Hard   — 7×7, 5 in a row", 7, 5);
+        HARD("Hard   — 7×7, 5 in a row", 7, 5);
 
         final String label;
-        final int    gridSize;   // rows = cols = gridSize
-        final int    winLength;  // consecutive marks needed
+        final int gridSize;   // rows = cols = gridSize
+        final int winLength;  // consecutive marks needed
 
         Difficulty(String label, int gridSize, int winLength) {
-            this.label      = label;
-            this.gridSize   = gridSize;
-            this.winLength  = winLength;
+            this.label = label;
+            this.gridSize = gridSize;
+            this.winLength = winLength;
         }
 
-        @Override public String toString() { return label; }
+        @Override
+        public String toString() {
+            return label;
+        }
     }
 
     // ══════════════════════════════════════════════
     // Colours & Fonts
     // ══════════════════════════════════════════════
-    private static final Color COL_BG      = new Color(22, 26, 42);
-    private static final Color COL_HEADER  = new Color(16, 20, 36);
-    private static final Color COL_GRID    = new Color(50, 62, 105);
-    private static final Color COL_CELL    = new Color(28, 33, 55);
-    private static final Color COL_HOVER   = new Color(40, 48, 78);
-    private static final Color COL_X       = new Color(255,  85, 115);
-    private static final Color COL_O       = new Color( 55, 205, 230);
-    private static final Color COL_WIN_HL  = new Color( 80, 255, 145);
-    private static final Color COL_TEXT    = new Color(215, 222, 255);
-    private static final Color COL_MUTED   = new Color(120, 135, 195);
+    private static final Color COL_BG = new Color(22, 26, 42);
+    private static final Color COL_HEADER = new Color(16, 20, 36);
+    private static final Color COL_GRID = new Color(50, 62, 105);
+    private static final Color COL_CELL = new Color(28, 33, 55);
+    private static final Color COL_HOVER = new Color(40, 48, 78);
+    private static final Color COL_X = new Color(255, 85, 115);
+    private static final Color COL_O = new Color(55, 205, 230);
+    private static final Color COL_WIN_HL = new Color(80, 255, 145);
+    private static final Color COL_TEXT = new Color(215, 222, 255);
+    private static final Color COL_MUTED = new Color(120, 135, 195);
 
     // ══════════════════════════════════════════════
     // Game State
     // ══════════════════════════════════════════════
-    private Difficulty  difficulty = Difficulty.EASY;
-    private String[]    board;          // "" | "X" | "O"
-    private boolean     xTurn;
-    private boolean     gameOver;
+    private Difficulty difficulty = Difficulty.EASY;
+    private String[] board;          // "" | "X" | "O"
+    private boolean xTurn;
+    private boolean gameOver;
     private List<int[]> winCells;       // list of [row,col] in the winning run
 
     private int xWins, oWins, draws;
@@ -68,10 +71,10 @@ public class TicTacToe extends JFrame {
     // ══════════════════════════════════════════════
     // UI
     // ══════════════════════════════════════════════
-    private CellButton[][]      cells;
-    private JPanel              gridPanel;
-    private JLabel              statusLbl;
-    private JLabel              scoreLbl;
+    private CellButton[][] cells;
+    private final JPanel gridPanel;
+    private JLabel statusLbl;
+    private JLabel scoreLbl;
     private JComboBox<Difficulty> diffBox;
 
     // ══════════════════════════════════════════════
@@ -134,7 +137,9 @@ public class TicTacToe extends JFrame {
             Difficulty selected = (Difficulty) diffBox.getSelectedItem();
             if (selected != difficulty) {
                 difficulty = selected;
-                xWins = 0; oWins = 0; draws = 0;
+                xWins = 0;
+                oWins = 0;
+                draws = 0;
                 applyDifficulty();
             }
         });
@@ -148,8 +153,8 @@ public class TicTacToe extends JFrame {
         statusLbl.setForeground(COL_X);
         statusLbl.setBorder(BorderFactory.createEmptyBorder(4, 0, 0, 0));
 
-        header.add(title,     BorderLayout.NORTH);
-        header.add(diffRow,   BorderLayout.CENTER);
+        header.add(title, BorderLayout.NORTH);
+        header.add(diffRow, BorderLayout.CENTER);
         header.add(statusLbl, BorderLayout.SOUTH);
         return header;
     }
@@ -165,12 +170,18 @@ public class TicTacToe extends JFrame {
 
         JPanel btnRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 0));
         btnRow.setOpaque(false);
-        btnRow.add(makeButton("New Game",    new Color(50, 68, 150), e -> startNewGame()));
+        btnRow.add(makeButton("New Game", new Color(50, 68, 150), e -> startNewGame()));
         btnRow.add(makeButton("Reset Score", new Color(130, 40, 60),
-                e -> { xWins=0; oWins=0; draws=0; updateScore(); startNewGame(); }));
+                e -> {
+                    xWins = 0;
+                    oWins = 0;
+                    draws = 0;
+                    updateScore();
+                    startNewGame();
+                }));
 
         footer.add(scoreLbl, BorderLayout.CENTER);
-        footer.add(btnRow,   BorderLayout.SOUTH);
+        footer.add(btnRow, BorderLayout.SOUTH);
         return footer;
     }
 
@@ -213,7 +224,7 @@ public class TicTacToe extends JFrame {
         gridPanel.repaint();
 
         // Reset game state
-        xTurn    = true;
+        xTurn = true;
         gameOver = false;
         winCells = null;
         setStatus("Player X's Turn", COL_X);
@@ -230,7 +241,7 @@ public class TicTacToe extends JFrame {
                 board[r * n + c] = "";
                 cells[r][c].repaint();
             }
-        xTurn    = true;
+        xTurn = true;
         gameOver = false;
         winCells = null;
         setStatus("Player X's Turn", COL_X);
@@ -252,7 +263,8 @@ public class TicTacToe extends JFrame {
 
         if (winCells != null) {
             gameOver = true;
-            if (xTurn) xWins++; else oWins++;
+            if (xTurn) xWins++;
+            else oWins++;
             updateScore();
             repaintWinCells();
             setStatus("Player " + mark + " Wins! 🎉", xTurn ? COL_X : COL_O);
@@ -271,14 +283,14 @@ public class TicTacToe extends JFrame {
      * Checks all 4 directions from the just-placed cell (row,col).
      * Returns list of winning [row,col] pairs if a run of winLength is found,
      * else returns null.
-     *
+     * <p>
      * Directions: horizontal, vertical, diagonal (\), anti-diagonal (/)
      */
     private List<int[]> checkWin(int row, int col, String mark) {
-        int n   = difficulty.gridSize;
+        int n = difficulty.gridSize;
         int win = difficulty.winLength;
 
-        int[][] dirs = {{0,1},{1,0},{1,1},{1,-1}};
+        int[][] dirs = {{0, 1}, {1, 0}, {1, 1}, {1, -1}};
 
         for (int[] d : dirs) {
             List<int[]> run = new ArrayList<>();
@@ -286,16 +298,16 @@ public class TicTacToe extends JFrame {
 
             // Extend in positive direction
             for (int step = 1; step < win; step++) {
-                int nr = row + d[0]*step, nc = col + d[1]*step;
-                if (nr<0||nr>=n||nc<0||nc>=n) break;
-                if (!board[nr*n+nc].equals(mark)) break;
+                int nr = row + d[0] * step, nc = col + d[1] * step;
+                if (nr < 0 || nr >= n || nc < 0 || nc >= n) break;
+                if (!board[nr * n + nc].equals(mark)) break;
                 run.add(new int[]{nr, nc});
             }
             // Extend in negative direction
             for (int step = 1; step < win; step++) {
-                int nr = row - d[0]*step, nc = col - d[1]*step;
-                if (nr<0||nr>=n||nc<0||nc>=n) break;
-                if (!board[nr*n+nc].equals(mark)) break;
+                int nr = row - d[0] * step, nc = col - d[1] * step;
+                if (nr < 0 || nr >= n || nc < 0 || nc >= n) break;
+                if (!board[nr * n + nc].equals(mark)) break;
                 run.add(new int[]{nr, nc});
             }
 
@@ -311,7 +323,7 @@ public class TicTacToe extends JFrame {
 
     private boolean isWinCell(int row, int col) {
         if (winCells == null) return false;
-        for (int[] wc : winCells) if (wc[0]==row && wc[1]==col) return true;
+        for (int[] wc : winCells) if (wc[0] == row && wc[1] == col) return true;
         return false;
     }
 
@@ -335,7 +347,8 @@ public class TicTacToe extends JFrame {
 
     private JButton makeButton(String text, Color bg, ActionListener al) {
         JButton btn = new JButton(text) {
-            @Override protected void paintComponent(Graphics g) {
+            @Override
+            protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g;
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 Color c = getModel().isRollover() ? bg.brighter() : bg;
@@ -345,10 +358,13 @@ public class TicTacToe extends JFrame {
                 g2.setFont(new Font("Arial", Font.BOLD, 13));
                 FontMetrics fm = g2.getFontMetrics();
                 g2.drawString(getText(),
-                    (getWidth()-fm.stringWidth(getText()))/2,
-                    (getHeight()-fm.getHeight())/2 + fm.getAscent());
+                        (getWidth() - fm.stringWidth(getText())) / 2,
+                        (getHeight() - fm.getHeight()) / 2 + fm.getAscent());
             }
-            @Override protected void paintBorder(Graphics g) {}
+
+            @Override
+            protected void paintBorder(Graphics g) {
+            }
         };
         btn.setPreferredSize(new Dimension(140, 36));
         btn.setContentAreaFilled(false);
@@ -370,19 +386,30 @@ public class TicTacToe extends JFrame {
         CellButton(int row, int col, int px) {
             this.row = row;
             this.col = col;
-            this.px  = px;
+            this.px = px;
             setBackground(COL_CELL);
             setPreferredSize(new Dimension(px, px));
             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
             addMouseListener(new MouseAdapter() {
-                @Override public void mouseClicked(MouseEvent e)  { handleClick(row, col); }
-                @Override public void mouseEntered(MouseEvent e)  {
-                    if (board[row*difficulty.gridSize+col].isEmpty() && !gameOver) {
-                        hovered = true; repaint();
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    handleClick(row, col);
+                }
+
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    if (board[row * difficulty.gridSize + col].isEmpty() && !gameOver) {
+                        hovered = true;
+                        repaint();
                     }
                 }
-                @Override public void mouseExited(MouseEvent e)   { hovered = false; repaint(); }
+
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    hovered = false;
+                    repaint();
+                }
             });
         }
 
@@ -390,7 +417,7 @@ public class TicTacToe extends JFrame {
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
             Graphics2D g2 = (Graphics2D) g;
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,   RenderingHints.VALUE_ANTIALIAS_ON);
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
             int w = getWidth(), h = getHeight();
@@ -398,10 +425,10 @@ public class TicTacToe extends JFrame {
             // Background
             boolean winning = isWinCell(row, col);
             Color bg = winning ? new Color(40, 80, 50)
-                     : hovered ? COL_HOVER
-                     : COL_CELL;
+                    : hovered ? COL_HOVER
+                      : COL_CELL;
             g2.setColor(bg);
-            g2.fillRoundRect(2, 2, w-4, h-4, 10, 10);
+            g2.fillRoundRect(2, 2, w - 4, h - 4, 10, 10);
 
             // Symbol
             String val = board[row * difficulty.gridSize + col];
@@ -411,7 +438,7 @@ public class TicTacToe extends JFrame {
             Color drawColor = winning ? COL_WIN_HL : col;
 
             // Glow layers
-            int fontSize = (int)(px * 0.55);
+            int fontSize = (int) (px * 0.55);
             Font glowFont = new Font("Arial", Font.BOLD, fontSize + 8);
             g2.setFont(glowFont);
             FontMetrics fm = g2.getFontMetrics();
@@ -419,8 +446,8 @@ public class TicTacToe extends JFrame {
             int ty = (h - fm.getHeight()) / 2 + fm.getAscent();
             g2.setColor(new Color(drawColor.getRed(), drawColor.getGreen(), drawColor.getBlue(), 45));
             for (int d = 1; d <= 3; d++) {
-                g2.drawString(val, tx+d, ty+d);
-                g2.drawString(val, tx-d, ty-d);
+                g2.drawString(val, tx + d, ty + d);
+                g2.drawString(val, tx - d, ty - d);
             }
 
             // Main symbol
