@@ -144,6 +144,25 @@ public final class GamePanel extends JPanel implements ActionListener {
         this.startGame();
     }
 
+    public void shutdown() {
+        this.running = false;
+        this.paused = false;
+        this.initialScreen = false;
+
+        if (this.timer != null) {
+            this.timer.stop();
+        }
+
+        stopClip(this.backgroundmusic);
+        this.backgroundmusic = null;
+
+        stopClip(this.bite);
+        this.bite = null;
+
+        stopClip(this.gameOver);
+        this.gameOver = null;
+    }
+
     public void paintComponent(Graphics var1) {
         super.paintComponent(var1);
         if (this.backgroundimage != null) {
@@ -280,7 +299,7 @@ public final class GamePanel extends JPanel implements ActionListener {
         }
 
     }
-
+    @Override
     public void actionPerformed(ActionEvent var1) {
         if (this.running) {
             this.move();
@@ -311,6 +330,13 @@ public final class GamePanel extends JPanel implements ActionListener {
 
     private String stripLeadingSlash(String path) {
         return path.startsWith("/") ? path.substring(1) : path;
+    }
+
+    private void stopClip(Clip clip) {
+        if (clip != null) {
+            clip.stop();
+            clip.close();
+        }
     }
 
     public class MyKeyAdapter extends KeyAdapter {
@@ -372,8 +398,6 @@ public final class GamePanel extends JPanel implements ActionListener {
                     }
                     break;
             }
-
         }
     }
 }
-

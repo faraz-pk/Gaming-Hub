@@ -1,5 +1,6 @@
 package UI;
 
+import AI.ChessAi;
 import Game.GameMode;
 import Game.GameState;
 import UI.Panels.ModeSelectPanel;
@@ -18,10 +19,12 @@ public class GameFrame extends JFrame {
     private UI.Panels.GamePanel gamePanel;
 
     private GameMode selectedMode;
+    private ChessAi.Difficulty selectedDifficulty = ChessAi.Difficulty.MEDIUM;
 
     public GameFrame() {
         setTitle("Chess Game");
-        setSize(800, 800);
+        setSize(1120, 820);
+        setMinimumSize(new Dimension(980, 760));
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
@@ -54,10 +57,17 @@ public class GameFrame extends JFrame {
 
     public void setGameMode(GameMode mode) {
         this.selectedMode = mode;
-        gamePanel.startGame(mode);
     }
 
     public GameMode getGameMode() {
         return selectedMode;
+    }
+
+    public ChessAi.Difficulty getSelectedDifficulty() {
+        return selectedDifficulty;
+    }
+
+    public void setSelectedDifficulty(ChessAi.Difficulty selectedDifficulty) {
+        this.selectedDifficulty = selectedDifficulty;
     }
 }

@@ -76,20 +76,22 @@ public class Pawn extends Piece {
     }
 
     private void addEnPassantMoves(Board board, int row, int col, int nextRow, List<Move> moves) {
-        // Check if last move was a pawn double move on adjacent file
         int lastFromRow = board.getLastPawnMoveFromRow();
         int lastToRow = board.getLastPawnMoveToRow();
         int lastToCol = board.getLastPawnMoveToCol();
+        int lastFromCol = board.getLastPawnMoveFromCol();
 
-        // En passant is possible if:
-        // 1. Last move was a pawn move
-        // 2. The pawn moved exactly 2 squares
-        // 3. The enemy pawn is on the same row as our pawn
-        // 4. The enemy pawn is adjacent (one column away)
         if (lastFromRow != -1 && Math.abs(lastFromRow - lastToRow) == 2) {
             if (lastToRow == row && Math.abs(lastToCol - col) == 1) {
-                // We can capture the pawn that just moved
-                moves.add(new Move(row, col, nextRow, lastToCol, "en_passant"));
+                Tile capturedPawnTile = board.getTile(row, lastToCol);
+                Tile targetTile = board.getTile(nextRow, lastToCol);
+                if (lastFromCol == lastToCol
+                        && capturedPawnTile.isOccupied()
+                        && capturedPawnTile.getPiece() instanceof Pawn
+                        && capturedPawnTile.getPiece().isWhite() != isWhite
+                        && !targetTile.isOccupied()) {
+                    moves.add(new Move(row, col, nextRow, lastToCol, "en_passant"));
+                }
             }
         }
     }

@@ -17,9 +17,15 @@ public class Board {
     private int lastPawnMoveToCol = -1;
 
     public Board() {
+        this(true);
+    }
+
+    private Board(boolean setupPieces) {
         board = new Tile[8][8];
         initializeBoard();
-        setupPieces();
+        if (setupPieces) {
+            setupPieces();
+        }
     }
 
     private void initializeBoard() {
@@ -32,6 +38,10 @@ public class Board {
 
     public Tile getTile(int row, int col) {
         return board[row][col];
+    }
+
+    public boolean isInside(int row, int col) {
+        return row >= 0 && row < 8 && col >= 0 && col < 8;
     }
 
     private void setupPieces() {
@@ -104,8 +114,51 @@ public class Board {
         this.lastPawnMoveToCol = toCol;
     }
 
+    public void clearLastPawnMove() {
+        lastPawnMoveFromRow = -1;
+        lastPawnMoveFromCol = -1;
+        lastPawnMoveToRow = -1;
+        lastPawnMoveToCol = -1;
+    }
+
     public int getLastPawnMoveFromRow() { return lastPawnMoveFromRow; }
     public int getLastPawnMoveFromCol() { return lastPawnMoveFromCol; }
     public int getLastPawnMoveToRow() { return lastPawnMoveToRow; }
     public int getLastPawnMoveToCol() { return lastPawnMoveToCol; }
+
+    public Board copy() {
+        Board copy = new Board(false);
+
+        copy.whiteKingMoved = whiteKingMoved;
+        copy.blackKingMoved = blackKingMoved;
+        copy.whiteRookAMoved = whiteRookAMoved;
+        copy.whiteRookHMoved = whiteRookHMoved;
+        copy.blackRookAMoved = blackRookAMoved;
+        copy.blackRookHMoved = blackRookHMoved;
+        copy.lastPawnMoveFromRow = lastPawnMoveFromRow;
+        copy.lastPawnMoveFromCol = lastPawnMoveFromCol;
+        copy.lastPawnMoveToRow = lastPawnMoveToRow;
+        copy.lastPawnMoveToCol = lastPawnMoveToCol;
+
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                Tile sourceTile = board[row][col];
+                if (sourceTile.isOccupied()) {
+                    copy.board[row][col].setPiece(clonePiece(sourceTile.getPiece()));
+                }
+            }
+        }
+
+        return copy;
+    }
+
+    private Pieces.Piece clonePiece(Pieces.Piece piece) {
+        if (piece instanceof Pawn) return new Pawn(piece.isWhite());
+        if (piece instanceof Rook) return new Rook(piece.isWhite());
+        if (piece instanceof Knight) return new Knight(piece.isWhite());
+        if (piece instanceof Bishop) return new Bishop(piece.isWhite());
+        if (piece instanceof Queen) return new Queen(piece.isWhite());
+        if (piece instanceof King) return new King(piece.isWhite());
+        throw new IllegalArgumentException("Unsupported piece type: " + piece.getClass().getSimpleName());
+    }
 }

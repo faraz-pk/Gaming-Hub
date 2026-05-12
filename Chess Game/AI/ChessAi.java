@@ -1,70 +1,65 @@
 package AI;
 
-import Model.*;
+import Logic.CheckDetector;
 import Logic.GameController;
+import Model.Board;
+import Model.Move;
+import Model.Tile;
 import Pieces.Piece;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
 public class ChessAi {
+    private static final long EASY_TIME_LIMIT_MS = 120;
+    private static final long MEDIUM_TIME_LIMIT_MS = 300;
+    private static final long HARD_TIME_LIMIT_MS = 700;
 
     public enum Difficulty {
         EASY(1),
-        MEDIUM(3),
-        HARD(5);
+        MEDIUM(2),
+        HARD(3);
 
         public final int depth;
+
         Difficulty(int depth) {
             this.depth = depth;
         }
     }
 
-    private Difficulty difficulty;
-    private Random random = new Random();
+    private final Difficulty difficulty;
+    private final Random random = new Random();
 
     public ChessAi(Difficulty difficulty) {
         this.difficulty = difficulty;
     }
 
     public Move getBestMove(Board board, GameController controller) {
-        List<Move> allLegalMoves = new ArrayList<>();
-
-        // Get all legal moves for black
-        for (int r = 0; r < 8; r++) {
-            for (int c = 0; c < 8; c++) {
-                Tile tile = board.getTile(r, c);
-                if (tile.isOccupied() && !tile.getPiece().isWhite()) {
-                    List<Move> moves = tile.getPiece().getValidMoves(board, r, c);
-                    allLegalMoves.addAll(controller.filterIllegalMoves(moves));
-                }
-            }
+        List<Move> legalMoves = collectLegalMoves(board, false, controller);
+        if (legalMoves.isEmpty()) {
+            return null;
         }
 
-        if (allLegalMoves.isEmpty()) return null;
-
-        // Use minimax algorithm to find best move
+        long deadlineNanos = System.nanoTime() + getTimeLimitMs() * 1_000_000L;
         Move bestMove = null;
-        double bestScore = Double.NEGATIVE_INFINITY;
+        double bestScore = Double.POSITIVE_INFINITY;
 
-        for (Move move : allLegalMoves) {
-            // Simulate move
-            Piece movingPiece = board.getTile(move.getFromRow(), move.getFromCol()).getPiece();
-            Piece captured = board.getTile(move.getToRow(), move.getToCol()).getPiece();
+        for (Move move : legalMoves) {
+            if (System.nanoTime() >= deadlineNanos && bestMove != null) {
+                break;
+            }
 
-            board.getTile(move.getToRow(), move.getToCol()).setPiece(movingPiece);
-            board.getTile(move.getFromRow(), move.getFromCol()).setPiece(null);
+            Board simulatedBoard = board.copy();
+            controller.applyMove(simulatedBoard, move);
+            double score = minimax(simulatedBoard, difficulty.depth - 1, true, controller,
+                    Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, deadlineNanos);
 
-            // Evaluate position
-            double score = minimax(board, difficulty.depth - 1, false, controller);
-
-            // Undo move
-            board.getTile(move.getFromRow(), move.getFromCol()).setPiece(movingPiece);
-            board.getTile(move.getToRow(), move.getToCol()).setPiece(captured);
-
-            if (score > bestScore) {
+            if (score < bestScore) {
                 bestScore = score;
+                bestMove = move;
+            } else if (score == bestScore && random.nextBoolean()) {
                 bestMove = move;
             }
         }
@@ -72,139 +67,154 @@ public class ChessAi {
         return bestMove;
     }
 
-    private double minimax(Board board, int depth, boolean isMaximizing, GameController controller) {
-        // Base case: reach depth limit or game end
-        if (depth == 0) {
+    private double minimax(Board board, int depth, boolean whiteToMove, GameController controller,
+                           double alpha, double beta, long deadlineNanos) {
+        if (depth == 0 || System.nanoTime() >= deadlineNanos) {
             return evaluateBoard(board);
         }
 
-        List<Move> allMoves = new ArrayList<>();
+        List<Move> legalMoves = collectLegalMoves(board, whiteToMove, controller);
+        if (legalMoves.isEmpty()) {
+            if (CheckDetector.isKingInCheck(board, whiteToMove)) {
+                return whiteToMove ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY;
+            }
+            return 0;
+        }
 
-        // Get all legal moves for current player
-        for (int r = 0; r < 8; r++) {
-            for (int c = 0; c < 8; c++) {
-                Tile tile = board.getTile(r, c);
-                if (tile.isOccupied() && tile.getPiece().isWhite() == isMaximizing) {
-                    List<Move> moves = tile.getPiece().getValidMoves(board, r, c);
-                    allMoves.addAll(controller.filterIllegalMoves(moves));
+        if (whiteToMove) {
+            double bestScore = Double.NEGATIVE_INFINITY;
+            for (Move move : legalMoves) {
+                if (System.nanoTime() >= deadlineNanos) {
+                    break;
+                }
+                Board simulatedBoard = board.copy();
+                controller.applyMove(simulatedBoard, move);
+                bestScore = Math.max(bestScore, minimax(
+                        simulatedBoard,
+                        depth - 1,
+                        false,
+                        controller,
+                        alpha,
+                        beta,
+                        deadlineNanos
+                ));
+                alpha = Math.max(alpha, bestScore);
+                if (beta <= alpha) {
+                    break;
                 }
             }
+            return bestScore;
         }
 
-        if (allMoves.isEmpty()) {
-            // Checkmate or stalemate
-            return isMaximizing ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY;
-        }
-
-        if (isMaximizing) {
-            double maxScore = Double.NEGATIVE_INFINITY;
-            for (Move move : allMoves) {
-                Piece movingPiece = board.getTile(move.getFromRow(), move.getFromCol()).getPiece();
-                Piece captured = board.getTile(move.getToRow(), move.getToCol()).getPiece();
-
-                board.getTile(move.getToRow(), move.getToCol()).setPiece(movingPiece);
-                board.getTile(move.getFromRow(), move.getFromCol()).setPiece(null);
-
-                double score = minimax(board, depth - 1, false, controller);
-
-                board.getTile(move.getFromRow(), move.getFromCol()).setPiece(movingPiece);
-                board.getTile(move.getToRow(), move.getToCol()).setPiece(captured);
-
-                maxScore = Math.max(maxScore, score);
+        double bestScore = Double.POSITIVE_INFINITY;
+        for (Move move : legalMoves) {
+            if (System.nanoTime() >= deadlineNanos) {
+                break;
             }
-            return maxScore;
-        } else {
-            double minScore = Double.POSITIVE_INFINITY;
-            for (Move move : allMoves) {
-                Piece movingPiece = board.getTile(move.getFromRow(), move.getFromCol()).getPiece();
-                Piece captured = board.getTile(move.getToRow(), move.getToCol()).getPiece();
-
-                board.getTile(move.getToRow(), move.getToCol()).setPiece(movingPiece);
-                board.getTile(move.getFromRow(), move.getFromCol()).setPiece(null);
-
-                double score = minimax(board, depth - 1, true, controller);
-
-                board.getTile(move.getFromRow(), move.getFromCol()).setPiece(movingPiece);
-                board.getTile(move.getToRow(), move.getToCol()).setPiece(captured);
-
-                minScore = Math.min(minScore, score);
+            Board simulatedBoard = board.copy();
+            controller.applyMove(simulatedBoard, move);
+            bestScore = Math.min(bestScore, minimax(
+                    simulatedBoard,
+                    depth - 1,
+                    true,
+                    controller,
+                    alpha,
+                    beta,
+                    deadlineNanos
+            ));
+            beta = Math.min(beta, bestScore);
+            if (beta <= alpha) {
+                break;
             }
-            return minScore;
         }
+        return bestScore;
+    }
+
+    private List<Move> collectLegalMoves(Board board, boolean whitePieces, GameController controller) {
+        List<Move> legalMoves = new ArrayList<>();
+
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                Tile tile = board.getTile(row, col);
+                if (!tile.isOccupied() || tile.getPiece().isWhite() != whitePieces) {
+                    continue;
+                }
+
+                List<Move> candidateMoves = tile.getPiece().getValidMoves(board, row, col);
+                legalMoves.addAll(controller.filterIllegalMoves(candidateMoves, whitePieces));
+            }
+        }
+
+        legalMoves.sort(Comparator.comparingDouble(move -> -capturePriority(board, move)));
+        return legalMoves;
+    }
+
+    private long getTimeLimitMs() {
+        return switch (difficulty) {
+            case EASY -> EASY_TIME_LIMIT_MS;
+            case MEDIUM -> MEDIUM_TIME_LIMIT_MS;
+            case HARD -> HARD_TIME_LIMIT_MS;
+        };
+    }
+
+    private double capturePriority(Board board, Move move) {
+        Tile targetTile = board.getTile(move.getToRow(), move.getToCol());
+        if (!targetTile.isOccupied()) {
+            return 0;
+        }
+        return getPieceValue(targetTile.getPiece());
     }
 
     private double evaluateBoard(Board board) {
         double score = 0;
 
-        // Piece values
-        double[] pieceValues = {
-                1.0,   // Pawn
-                3.0,   // Knight
-                3.2,   // Bishop
-                5.0,   // Rook
-                9.0,   // Queen
-                200.0  // King (high value to avoid capture)
-        };
-
-        // Count material for both sides
-        for (int r = 0; r < 8; r++) {
-            for (int c = 0; c < 8; c++) {
-                Tile tile = board.getTile(r, c);
-                if (tile.isOccupied()) {
-                    Piece piece = tile.getPiece();
-                    double pieceValue = getPieceValue(piece, pieceValues);
-
-                    // Add positional bonus
-                    pieceValue += getPositionalBonus(piece, r, c);
-
-                    if (piece.isWhite()) {
-                        score += pieceValue;
-                    } else {
-                        score -= pieceValue;
-                    }
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                Tile tile = board.getTile(row, col);
+                if (!tile.isOccupied()) {
+                    continue;
                 }
+
+                Piece piece = tile.getPiece();
+                double pieceValue = getPieceValue(piece) + getPositionalBonus(piece, row, col);
+                score += piece.isWhite() ? pieceValue : -pieceValue;
             }
         }
 
         return score;
     }
 
-    private double getPieceValue(Piece piece, double[] values) {
-        String type = piece.getClass().getSimpleName();
-        return switch (type) {
-            case "Pawn" -> values[0];
-            case "Knight" -> values[1];
-            case "Bishop" -> values[2];
-            case "Rook" -> values[3];
-            case "Queen" -> values[4];
-            case "King" -> values[5];
+    private double getPieceValue(Piece piece) {
+        return switch (piece.getClass().getSimpleName()) {
+            case "Pawn" -> 1.0;
+            case "Knight" -> 3.2;
+            case "Bishop" -> 3.3;
+            case "Rook" -> 5.0;
+            case "Queen" -> 9.0;
+            case "King" -> 200.0;
             default -> 0;
         };
     }
 
     private double getPositionalBonus(Piece piece, int row, int col) {
-        // Encourage piece development and center control
         String type = piece.getClass().getSimpleName();
+        int advancedRow = piece.isWhite() ? 7 - row : row;
 
-        if (type.equals("Pawn")) {
-            // Encourage pawns to advance
-            if (piece.isWhite()) {
-                return (6 - row) * 0.1; // Closer to promotion is better
-            } else {
-                return (row - 1) * 0.1;
-            }
+        if ("Pawn".equals(type)) {
+            return advancedRow * 0.08;
         }
 
-        if (type.equals("Knight") || type.equals("Bishop")) {
-            // Encourage center control
+        if ("Knight".equals(type) || "Bishop".equals(type)) {
             double centerDistance = Math.abs(row - 3.5) + Math.abs(col - 3.5);
-            return (8 - centerDistance) * 0.05;
+            return (7 - centerDistance) * 0.08;
         }
 
-        if (type.equals("Rook")) {
-            // Encourage open files and 7th/2nd rank
-            if (piece.isWhite() && row == 1) return 0.5;
-            if (!piece.isWhite() && row == 6) return 0.5;
+        if ("Rook".equals(type) && (row == 1 || row == 6)) {
+            return 0.35;
+        }
+
+        if ("King".equals(type)) {
+            return advancedRow < 2 ? 0.2 : 0;
         }
 
         return 0;

@@ -52,9 +52,12 @@ public class CheckDetector {
             for (int c = 0; c < 8; c++) {
                 Tile tile = board.getTile(r, c);
                 if (tile.isOccupied() && tile.getPiece().isWhite() == isWhite) {
-                    // Use the controller's existing filter logic to see if moves are truly legal
-                    List<Move> legalMoves = controller.filterIllegalMoves(tile.getPiece().getValidMoves(board, r, c));
-                    if (!legalMoves.isEmpty()) return true;
+                    List<Move> candidateMoves = tile.getPiece().getValidMoves(board, r, c);
+                    for (Move move : candidateMoves) {
+                        if (controller.isMoveLegal(board, move, isWhite)) {
+                            return true;
+                        }
+                    }
                 }
             }
         }
