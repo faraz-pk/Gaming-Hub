@@ -1,30 +1,10 @@
-# 🎮 Gaming Hub (In Progress)
+# 🎮 Gaming Hub
 
 > A multi-game desktop application built in Java — your one-stop platform for classic and logic-based games.
 
 ---
 
-## 📋 Project Info
-
-| Field | Details |
-|---|---|
-| **Course** | CS-212: Object Oriented Programming |
-| **Institution** | NUST — School of Electrical Engineering and Computer Science |
-| **Instructor** | Dr. Aimal Rextin |
-| **Batch** | BESE 16 A |
-| **Submission Date** | 11th May 2026 |
-
-### 👥 Team Members
-
-| Name | CMS ID |
-|---|---|
-| Ahmed Mohiuddin | 543769 |
-| Faraz Rasheed | 572957 |
-| Alisha Maryam Habib | 555847 |
-
----
-
-## 🧩 About the Project
+## 🧩 About
 
 **Gaming Hub** is a centralized multi-game desktop application developed in Java. Rather than focusing on a single game, it brings multiple classic and logic-based games together under one interactive GUI — a Game Hub where users can pick, play, and switch between games seamlessly.
 
